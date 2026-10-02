@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import Particles from "./Particles";
@@ -87,6 +87,7 @@ function Portrait({ mouse, scroll }: { mouse: React.MutableRefObject<THREE.Vecto
 export default function HeroScene() {
   const mouse = useRef(new THREE.Vector2(0.3, 0.2));
   const scroll = useRef(0);
+  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     const move = (e: PointerEvent) => mouse.current.set((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
@@ -97,7 +98,16 @@ export default function HeroScene() {
   }, []);
 
   return (
-    <Canvas camera={{ position: [0, 0, 5], fov: 40 }} dpr={[1, 1.75]} gl={{ antialias: true, alpha: true }}>
+    // Rendu suspendu quand le hero est hors écran (économie GPU/mémoire sur mobile) ;
+    // on évite de perdre le contexte WebGL en preventDefault sur « webglcontextlost ».
+    <Canvas
+      camera={{ position: [0, 0, 5], fov: 40 }} dpr={[1, 1.5]} gl={{ antialias: false, alpha: true, powerPreference: "default" }}
+      frameloop={visible ? "always" : "never"}
+      onCreated={({ gl }) => {
+        gl.domElement.addEventListener("webglcontextlost", (e) => e.preventDefault());
+        new IntersectionObserver(([en]) => setVisible(en.isIntersecting)).observe(gl.domElement);
+      }}
+    >
       <Portrait mouse={mouse} scroll={scroll} />
       <Particles count={140} spread={[9, 6, 3]} />
     </Canvas>

@@ -12,6 +12,7 @@ body { background: var(--ink); color: var(--ivory); font-family: var(--font-inte
 
 .gold-text { background: linear-gradient(120deg,#f1dcb9,#D6B88D 45%,#a98456); -webkit-background-clip:text; background-clip:text; color:transparent; }
 .glass { background: rgba(245,242,237,.05); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(214,184,141,.22); }
+@media (max-width: 768px) { .glass { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); background: rgba(23,23,26,.82); } }
 .btn { display:inline-flex; align-items:center; justify-content:center; padding:.95rem 1.8rem; border-radius:999px; font-size:.8rem; letter-spacing:.18em; text-transform:uppercase; transition:all .35s; }
 .btn-gold { background: linear-gradient(120deg,#e8cfa6,#D6B88D 50%,#b08d5e); color:var(--ink); font-weight:600; }
 .btn-gold:hover { box-shadow:0 0 40px rgba(214,184,141,.45); transform:translateY(-2px); }
