@@ -1,13 +1,13 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { gsap, prefersReducedMotion } from "@/lib/gsap";
-import { services, extras } from "@/lib/content";
+import { services } from "@/lib/content";
 
 const icons: Record<string, React.ReactNode> = {
   "Стрижки": <><circle cx="8" cy="8" r="3" /><circle cx="8" cy="20" r="3" /><path d="M10.5 10 28 24M10.5 18 28 6" /></>,
   "Окрашивание": <path d="M16 3c5 6 8 10 8 14a8 8 0 0 1-16 0c0-4 3-8 8-14Z" />,
-  "Восстановление": <path d="M16 3c1 7 3 9 10 10-7 1-9 3-10 10-1-7-3-9-10-10 7-1 9-3 10-10Z" />,
-  "Образы и прически": <path d="M4 24 6 10l6 6 4-9 4 9 6-6 2 14Z M4 28h24" />,
+  "Завивка и кератин": <path d="M16 3c1 7 3 9 10 10-7 1-9 3-10 10-1-7-3-9-10-10 7-1 9-3 10-10Z" />,
+  "Праздничные прически": <path d="M4 24 6 10l6 6 4-9 4 9 6-6 2 14Z M4 28h24" />,
 };
 
 export default function Services() {
@@ -54,7 +54,6 @@ export default function Services() {
             </div>
           ))}
         </div>
-        <p className="mt-10 text-sm text-ivory/60">Также: {extras.join(" · ")}</p>
       </div>
     </section>
   );

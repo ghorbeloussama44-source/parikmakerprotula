@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "tsc --noEmit",
-    "card": "node scripts/business-card.mjs"
+    "card": "node scripts/business-card.mjs",
+    "card:ornee": "node scripts/business-card-baroque.mjs",
+    "card:final": "node scripts/business-card-final.mjs",
+    "trace": "node scripts/trace-mockup.mjs"
   },
   "dependencies": {
     "@react-three/fiber": "^9.8.1",
@@ -22,6 +25,7 @@
   "devDependencies": {
     "@fontsource/cormorant": "^5.3.0",
     "@fontsource/inter": "^5.3.0",
+    "@fontsource/marck-script": "^5.3.0",
     "@fontsource/playfair-display": "^5.3.0",
     "@types/node": "^26.6.4",
     "@types/react": "^19.3.0",
@@ -30,6 +34,7 @@
     "autoprefixer": "^10.6.1",
     "opentype.js": "^2.0.0",
     "postcss": "^8.5.28",
+    "potrace": "^2.1.8",
     "qrcode": "^1.5.4",
     "sharp": "^0.35.5",
     "tailwindcss": "^3.4.19",

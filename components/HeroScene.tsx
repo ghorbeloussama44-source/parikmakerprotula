@@ -56,7 +56,7 @@ function Portrait({ mouse, scroll }: { mouse: React.MutableRefObject<THREE.Vecto
   const wide = viewport.width / viewport.height > 1;
   const h = wide ? viewport.height * 1.04 : Math.max(viewport.height, viewport.width / ASPECT);
   const w = h * ASPECT;
-  const x = wide ? viewport.width / 2 - w / 2 - 0.35 : 0;
+  const x = wide ? viewport.width / 2 - w / 2 : 0;
 
   const uniforms = useMemo(() => ({
     uTex: { value: tex }, uTime: { value: 0 }, uScroll: { value: 0 }, uMouse: { value: new THREE.Vector2(.5, .5) },

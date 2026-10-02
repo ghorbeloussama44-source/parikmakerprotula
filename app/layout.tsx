@@ -7,8 +7,8 @@ const inter = Inter({ subsets: ["cyrillic", "latin"], variable: "--font-inter" }
 const cormorant = Cormorant({ subsets: ["cyrillic", "latin"], style: ["italic"], weight: ["400", "500"], variable: "--font-cormorant" });
 
 export const metadata: Metadata = {
-  title: "Юлия Горбель — профессиональный парикмахер",
-  description: "Стрижки, окрашивание, свадебные и вечерние причёски, ботокс и кератин. Запись и консультация: пр. Ленина, 127а, офис 221.",
+  title: "Юлия Горбель — парикмахер-модельер",
+  description: "Парикмахер-модельер, стаж более 20 лет. Стрижки любой сложности, сложные окрашивания, кератин, завивка, праздничные прически. Запись: пр. Ленина, 127а, офис 221.",
 };
 export const viewport: Viewport = { themeColor: "#0B0B0D" };
 

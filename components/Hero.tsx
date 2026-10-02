@@ -31,7 +31,7 @@ export default function Hero() {
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-ink to-transparent" />
 
       <div className="relative z-10 flex h-full flex-col justify-center px-6 md:px-16 lg:px-24">
-        <p className="hero-in eyebrow mb-6">Профессиональный парикмахер</p>
+        <p className="hero-in eyebrow mb-6">{site.role}</p>
         <h1 className="hero-in font-display text-[clamp(3rem,9vw,8rem)] font-normal leading-[.95] tracking-tight">
           <span className="gold-text italic">Юля</span><br />Горбель
         </h1>
@@ -39,7 +39,7 @@ export default function Hero() {
           Ваш стиль —<br /><span className="text-gold">моя профессия</span>
         </p>
         <p className="hero-in mt-5 max-w-sm text-sm text-ivory/70">
-          Профессиональный стилист · {site.address}
+          {site.motto} · {site.experience.toLowerCase()}<br />{site.address}
         </p>
         <div className="hero-in pointer-events-auto mt-9 flex flex-wrap gap-3">
           <a href="#booking" className="btn btn-gold">Записаться</a>
