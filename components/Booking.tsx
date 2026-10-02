@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { hasWebGL } from "@/lib/gsap";
-import { bookingServices, site } from "@/lib/content";
+import { bookingServices, site, timeSlots } from "@/lib/content";
 
 const BookingScene = dynamic(() => import("./BookingScene"), { ssr: false });
 
@@ -11,14 +11,22 @@ export default function Booking() {
   const [done, setDone] = useState<string | null>(null);
   useEffect(() => { setGl(hasWebGL()); }, []);
 
-  // Pas de backend : la заявка est formée en message prêt à envoyer (appel / VK).
+  const [channel, setChannel] = useState<"whatsapp" | "max">("whatsapp");
+
+  // Pas de backend : le message est préparé et envoyé via l'app choisie (WhatsApp : texte pré-rempli ;
+  // Max : pas de lien pré-rempli, le texte est copié dans le presse-papiers puis Max s'ouvre).
   const submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     const date = f.get("date") ? new Date(String(f.get("date"))).toLocaleDateString("ru-RU") : "—";
-    const msg = `Здравствуйте! Хочу записаться.\nИмя: ${f.get("name")}\nТелефон: ${f.get("phone")}\nУслуга: ${f.get("service")}\nЖелаемая дата: ${date}`;
-    navigator.clipboard?.writeText(msg).catch(() => {});
+    const msg = `Здравствуйте! Хочу записаться.\nИмя: ${f.get("name")}\nТелефон: ${f.get("phone")}\nУслуга: ${f.get("service")}\nДата: ${date}\nВремя: ${f.get("time")}`;
     setDone(msg);
+    if (channel === "whatsapp") {
+      window.open(`https://wa.me/${site.whatsapp}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
+    } else {
+      navigator.clipboard?.writeText(msg).catch(() => {});
+      window.open(site.maxUrl, "_blank", "noopener");
+    }
   };
 
   return (
@@ -34,10 +42,11 @@ export default function Booking() {
           {done ? (
             <div className="text-center">
               <p className="font-display text-2xl text-gold">Заявка готова</p>
-              <p className="mt-3 text-sm text-ivory/70">Текст скопирован. Отправьте его мастеру или позвоните — подтвердим время записи.</p>
+              <p className="mt-3 text-sm text-ivory/70">{channel === "whatsapp" ? "Откройте WhatsApp и отправьте сообщение." : "Текст скопирован — вставьте его в чат Max и отправьте."} Мастер подтвердит время записи.</p>
               <pre className="mt-6 whitespace-pre-wrap rounded-2xl bg-ink/50 p-4 text-left text-sm text-ivory/80">{done}</pre>
               <div className="mt-6 flex flex-wrap justify-center gap-3">
-                <a className="btn btn-gold" href={site.phoneMaxHref}>Позвонить</a>
+                <a className="btn btn-gold" href={channel === "whatsapp" ? `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(done)}` : site.maxUrl} target="_blank" rel="noopener noreferrer">{channel === "whatsapp" ? "Открыть WhatsApp" : "Открыть Max"}</a>
+                <a className="btn btn-line" href={site.phoneMaxHref}>Позвонить</a>
                 <a className="btn btn-line" href={site.vk} target="_blank" rel="noopener noreferrer">Написать в VK</a>
               </div>
               <button className="mt-6 text-xs uppercase tracking-[.25em] text-gold/70" onClick={() => setDone(null)}>Изменить</button>
@@ -52,7 +61,24 @@ export default function Booking() {
                   {bookingServices.map((s) => <option key={s}>{s}</option>)}
                 </select>
               </label>
-              <label className="block text-xs uppercase tracking-[.25em] text-gold/80">Дата<input name="date" type="date" /></label>
+              <div className="grid grid-cols-2 gap-6">
+                <label className="block text-xs uppercase tracking-[.25em] text-gold/80">Дата<input name="date" type="date" required min={new Date().toISOString().slice(0, 10)} /></label>
+                <label className="block text-xs uppercase tracking-[.25em] text-gold/80">Время
+                  <select name="time" required defaultValue="">
+                    <option value="" disabled>—</option>
+                    {timeSlots.map((t) => <option key={t}>{t}</option>)}
+                  </select>
+                </label>
+              </div>
+              <fieldset>
+                <legend className="text-xs uppercase tracking-[.25em] text-gold/80">Отправить заявку через</legend>
+                <div className="mt-3 flex gap-3">
+                  {(["whatsapp", "max"] as const).map((c) => (
+                    <button type="button" key={c} onClick={() => setChannel(c)} aria-pressed={channel === c}
+                      className={`btn flex-1 !text-[11px] ${channel === c ? "btn-gold" : "btn-line"}`}>{c === "whatsapp" ? "WhatsApp" : "Max"}</button>
+                  ))}
+                </div>
+              </fieldset>
               <button className="btn btn-gold w-full">Записаться</button>
             </form>
           )}

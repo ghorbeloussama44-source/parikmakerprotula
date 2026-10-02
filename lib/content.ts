@@ -9,6 +9,10 @@ export const site = {
   vk: "https://vk.ru/id1119607697",
   instagram: "https://instagram.com/yulia.gorbel",
   instagramHandle: "@yulia.gorbel",
+  // Номер для WhatsApp (формат без +). Проверьте — взят номер из Max.
+  whatsapp: "79954424712",
+  // Ссылка на чат Max мастера. Если есть личная ссылка вида https://max.ru/u/..., вставьте сюда.
+  maxUrl: "https://max.ru",
 };
 
 export const services = [
@@ -27,9 +31,17 @@ export const bookingServices = [
   "Архитектура бровей", "Оформление бороды",
 ];
 
+export const transformations = [
+  { id: "balayage", title: "Пепельный блонд · балаяж", before: "/img/balayage-before.jpg", after: "/img/balayage-after.jpg" },
+  { id: "pixie", title: "Пикси с андеркатом · цвет", before: "/img/pixie-before.jpg", after: "/img/pixie-after.jpg" },
+  { id: "fade", title: "Стрижка фейд · дизайн", before: "/img/fade-before.jpg", after: "/img/fade-after.jpg" },
+];
+
 export const gallery = [
-  "g-top", "g-hair", "g-face", "g-light", "g-wave", "g-eyes", "g-hair", "g-face",
+  "balayage-after", "pixie-after", "fade-after", "g-hair", "balayage-before", "g-face", "pixie-before", "g-wave",
 ].map((n) => `/img/${n}.jpg`);
+
+export const timeSlots = ["09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00"];
 
 // ВНИМАНИЕ: цифры и отзывы ниже — черновик из концепции. Замените на реальные.
 export const stats = [
