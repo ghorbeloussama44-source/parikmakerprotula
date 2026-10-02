@@ -1,6 +1,7 @@
 // Carte de visite « ornée » (inspirée d'une maquette baroque noir & or) — vectoriel, sans photo, sans QR, sans adresse.
 // Usage : node scripts/business-card-baroque.mjs  ->  print/carte-ornee-*.svg + /tmp/card-baroque.html (pour le PDF)
 import fs from "node:fs";
+import sharp from "sharp";
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 const opentype = require("opentype.js");
@@ -158,10 +159,32 @@ for (const x of [t.x0, t.x1]) md += `M${x} ${t.y0 - g}v${-l}M${x} ${t.y1 + g}v${
 for (const y of [t.y0, t.y1]) md += `M${t.x0 - g} ${y}h${-l}M${t.x1 + g} ${y}h${l}`;
 const parts = (svg) => ({ defs: svg.match(/<defs>[\s\S]*?<\/defs>/)[0], body: svg.replace(/^<\?xml[^>]*>\s*<svg[^>]*>/, "").replace(/<defs>[\s\S]*?<\/defs>/, "").replace(/<\/svg>\s*$/, "") });
 // ids de dégradés uniques par page (le PDF contient deux <svg> dans un même document)
-const page = (svg, label, k) => { const p = parts(svg); const u = (s) => s.replace(/id="(or|filet|damas)"/g, `id="$1${k}"`).replace(/url\(#(or|filet|damas)\)/g, `url(#$1${k})`); return `<section><svg xmlns="http://www.w3.org/2000/svg" width="${PW}mm" height="${PH}mm" viewBox="0 0 ${PW} ${PH}">${u(p.defs)}<g transform="translate(${SLUG} ${SLUG})">${u(p.body)}</g><path d="${md}" stroke="#000" stroke-width="0.1" fill="none"/><g fill="#000">${text(fonts.sans, `${label} · 90x50 mm + 3 mm bleed · foil: gold-foil*`, SLUG, PH - 1.8, 1.4)}</g></svg></section>`; };
+const page = (svg, label, k) => { const p = parts(svg); const u = (s) => s.replace(/id="(or|filet|damas|fondu)"/g, `id="$1${k}"`).replace(/url\(#(or|filet|damas|fondu)\)/g, `url(#$1${k})`); return `<section><svg xmlns="http://www.w3.org/2000/svg" width="${PW}mm" height="${PH}mm" viewBox="0 0 ${PW} ${PH}">${u(p.defs)}<g transform="translate(${SLUG} ${SLUG})">${u(p.body)}</g><path d="${md}" stroke="#000" stroke-width="0.1" fill="none"/><g fill="#000">${text(fonts.sans, `${label} · 90x50 mm + 3 mm bleed · foil: gold-foil*`, SLUG, PH - 1.8, 1.4)}</g></svg></section>`; };
 
 fs.mkdirSync("print", { recursive: true });
 fs.writeFileSync("print/carte-ornee-recto.svg", front);
 fs.writeFileSync("print/carte-ornee-verso.svg", back);
 fs.writeFileSync("/tmp/card-baroque.html", `<!doctype html><meta charset="utf-8"><style>@page{size:${PW}mm ${PH}mm;margin:0}html,body{margin:0}section{width:${PW}mm;height:${PH}mm;page-break-after:always;overflow:hidden}svg{display:block}</style>${page(front, "FRONT", 1)}${page(back, "BACK", 2)}`);
+
+// ================= RECTO FINAL : photo plein cadre (modèle) + texte =================
+// Photo : print/assets/modele-photo.jpg (fond noir relevé à la couleur du fond de la carte).
+const mp = await sharp("print/assets/modele-photo.jpg").metadata();
+const ph = fs.readFileSync("print/assets/modele-photo.jpg").toString("base64");
+const ph_h = H, ph_w = (mp.width / mp.height) * ph_h;       // pleine hauteur, calée à droite
+const ph_x = Math.max(0, W - ph_w);
+const frontFinal = wrap(`<rect id="fond-perdu" width="${W}" height="${H}" fill="${C.ink}"/>
+<rect width="${o + 44}" height="${H}" fill="url(#damas)"/>
+<image id="photo" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="xMaxYMid slice" href="data:image/jpeg;base64,${ph}"/>
+<linearGradient id="fondu" x1="0" x2="1"><stop offset="0" stop-color="${C.ink}" stop-opacity="1"/><stop offset="1" stop-color="${C.ink}" stop-opacity="0"/></linearGradient>
+<rect x="${W - Math.min(ph_w, W)}" y="0" width="${(Math.min(ph_w, W) * 0.16).toFixed(2)}" height="${H}" fill="url(#fondu)"/>
+<g id="gold-foil">
+  ${rule(o + 23.8, o + 11.5, 38)}
+  <g fill="url(#or)">${text(fonts.hand, "Юлия Горбель", o + 23.8, o + 26.2, 5.6, { anchor: "middle" })}</g>
+  ${rule(o + 23.8, o + 31.2, 38)}
+  <g fill="${C.gold}">${text(fonts.sans, "ПАРИКМАХЕР-МОДЕЛЬЕР", o + 23.8, o + 37.4, 1.55, { anchor: "middle", tracking: 0.5 })}
+  ${text(fonts.sans, "С ЛЮБОВЬЮ К КАЖДОЙ ПРЯДИ", o + 23.8, o + 42.6, 1.3, { anchor: "middle", tracking: 0.32 })}</g>
+</g>`);
+fs.writeFileSync("print/carte-finale-recto.svg", frontFinal);
+fs.writeFileSync("print/carte-finale-verso.svg", back);
+fs.writeFileSync("/tmp/card-final.html", `<!doctype html><meta charset="utf-8"><style>@page{size:${PW}mm ${PH}mm;margin:0}html,body{margin:0}section{width:${PW}mm;height:${PH}mm;page-break-after:always;overflow:hidden}svg{display:block}</style>${page(frontFinal, "FRONT", 3)}${page(back, "BACK", 4)}`);
 console.log("svg ok");
