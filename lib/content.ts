@@ -16,7 +16,7 @@ export const site = {
   // Номер для WhatsApp (формат без +). Временный номер — заменить при необходимости.
   whatsapp: "79066291334",
   // Личная ссылка на профиль Юлии в Max (временная — заменить при необходимости).
-  maxUrl: "https://max.ru/u/f9LHodD0cOL1qfuCzyKJ_4S9Z7rZVJYQmdtXqgIgZ1KaBvcEa5U7Z1IODrc",
+  maxUrl: "https://max.ru/u/f9LHodD0cOIXb-E8Ut4IUglBv60T5tvZjXq21qtTRvgF7EUzT1195lbzNnU",
 };
 
 export const services = [
