@@ -1,15 +1,10 @@
 "use client";
-import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
-import { hasWebGL } from "@/lib/gsap";
+import { useState } from "react";
+import GoldDust from "./GoldDust";
 import { bookingServices, site, timeSlots } from "@/lib/content";
 
-const BookingScene = dynamic(() => import("./BookingScene"), { ssr: false });
-
 export default function Booking() {
-  const [gl, setGl] = useState(false);
   const [done, setDone] = useState<string | null>(null);
-  useEffect(() => { setGl(hasWebGL()); }, []);
 
   const [channel, setChannel] = useState<"whatsapp" | "max">("whatsapp");
 
@@ -28,7 +23,7 @@ export default function Booking() {
   return (
     <section id="booking" className="relative overflow-hidden px-6 py-28 md:px-16">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(214,184,141,.14),transparent_60%)]" />
-      {gl && <div className="pointer-events-none absolute inset-0"><BookingScene /></div>}
+      <div className="pointer-events-none absolute inset-0"><GoldDust /></div>
       <div className="relative mx-auto max-w-2xl">
         <p className="eyebrow text-center">Запись</p>
         <h2 className="mt-4 text-center font-display text-4xl md:text-6xl">Запишитесь <span className="gold-text italic">на консультацию</span></h2>
