@@ -58,6 +58,7 @@ const icons = {
   sparkle: `<path d="M-0.35 -1.6 C-0.2 -0.5 -0.1 -0.35 1 -0.2 C-0.1 -0.05 -0.2 0.1 -0.35 1.2 C-0.5 0.1 -0.6 -0.05 -1.7 -0.2 C-0.6 -0.35 -0.5 -0.5 -0.35 -1.6Z"/><path d="M1 0.5 C1.05 0.9 1.1 0.95 1.5 1 C1.1 1.05 1.05 1.1 1 1.5 C0.95 1.1 0.9 1.05 0.5 1 C0.9 0.95 0.95 0.9 1 0.5Z"/>`,
   crown: `<path d="M-1.6 1 L-1.35 -0.9 L-0.55 0 L0 -1.3 L0.55 0 L1.35 -0.9 L1.6 1Z M-1.6 1.6H1.6"/>`,
   phone: `<path d="M-1.1 -1.5 C-1.5 -1.1 -1.5 -0.3 -0.7 0.9 C0.1 2 1 2.5 1.5 2.1 L1.9 1.6 L0.9 0.7 L0.4 1 C-0.1 0.7 -0.6 0.2 -0.9 -0.4 L-0.5 -0.8 L-1.1 -1.5Z" transform="scale(0.82) translate(-0.2 -0.4)"/>`,
+  vk: `<g fill="${"url(#or)"}" stroke="none">${text(fonts.sansBold, "VK", 0, 0.75, 2.3, { anchor: "middle" })}</g>`,
   insta: `<rect x="-1.3" y="-1.3" width="2.6" height="2.6" rx="0.8"/><circle r="0.65"/><circle cx="0.85" cy="-0.85" r="0.12"/>`,
 };
 const iconCircle = (cx, cy, key, r = 2.35) => `<g transform="translate(${cx} ${cy})" ${stroke()}><circle r="${r}"/><g transform="scale(${(r / 2.35).toFixed(2)})">${icons[key]}</g></g>`;
@@ -105,7 +106,7 @@ const list = rows.map((r, i) => {
 }).join("\n");
 
 const bx = o + 63.6, by = o + 2.9, bw = 33.4, bh = 36.2, bc = bx + bw / 2;
-const contact = (label, value, y, icon, big = 2.1) => `<g fill="${GOLD}">${text(fonts.sansBold, label, bc, y, 1.05, { anchor: "middle", tracking: 0.34 })}</g>
+const contact = (label, value, y, icon, big = 2.1) => `${label ? `<g fill="${GOLD}">${text(fonts.sansBold, label, bc, y, 1.05, { anchor: "middle", tracking: 0.34 })}</g>` : ""}
 ${iconCircle(bx + 5.7, y + 2.8, icon, 1.85)}<g fill="${C.ivory}">${text(fonts.sans, value, bx + 9.8, y + 3.5, big)}</g>`;
 
 const back = wrap(`
@@ -116,11 +117,12 @@ ${face}
 <path d="M${L} ${o + 11}H${o + 60}" ${stroke(0.12)}/>
 ${list}
 <rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="2.6" ${stroke(0.18)}/>
-<g fill="${GOLD}">${text(fonts.sansBold, "ЗАПИСЬ И", bc, by + 4.2, 1.5, { anchor: "middle", tracking: 0.38 })}${text(fonts.sansBold, "КОНСУЛЬТАЦИЯ", bc, by + 6.9, 1.4, { anchor: "middle", tracking: 0.32 })}</g>
-<path d="M${bc - 7} ${by + 8.9}H${bc + 7}" ${stroke(0.12)}/>
-${contact("MAX", "8 (995) 442-47-12", by + 13.9, "phone")}
-${contact("ЗВОНКИ", "8 (991) 529-25-42", by + 21.5, "phone")}
-${contact("INSTAGRAM", "@yulia.gorbel", by + 29.2, "insta", 2.15)}
+<g fill="${GOLD}">${text(fonts.sansBold, "ЗАПИСЬ И", bc, by + 4.0, 1.5, { anchor: "middle", tracking: 0.38 })}${text(fonts.sansBold, "КОНСУЛЬТАЦИЯ", bc, by + 6.5, 1.4, { anchor: "middle", tracking: 0.32 })}</g>
+<path d="M${bc - 7} ${by + 8.1}H${bc + 7}" ${stroke(0.12)}/>
+${contact("MAX", "8 (995) 442-47-12", by + 11.6, "phone")}
+${contact("ЗВОНКИ", "8 (991) 529-25-42", by + 18.6, "phone")}
+${contact(null, "@yulia.gorbel", by + 24.2, "insta", 2.1)}
+${contact(null, "vk.ru/id1119607697", by + 29.8, "vk", 2.1)}
 </g>`);
 
 // ================= PDF : fond perdu + traits de coupe =================
