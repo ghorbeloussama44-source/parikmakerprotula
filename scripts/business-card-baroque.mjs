@@ -137,7 +137,7 @@ const list = rows.map((r, i) => {
   return `${iconCircle(L + 2.5, cy, r.icon)}<g fill="${C.gold}">${text(fonts.sansBold, r.title, L + 6.3, cy - (two ? 0.85 : 0.2), 1.35, { tracking: 0.28 })}</g>
 <g fill="${C.dim}">${r.sub.map((t, k) => text(fonts.sans, t, L + 6.3, cy + (two ? 0.9 : 1.5) + k * 1.8, 1.2)).join("")}</g>`;
 }).join("\n");
-const bx = o + 56, by = o + 9.5, bw = 24.5, bh = 33.5, bc = bx + bw / 2;
+const bx = o + 56, by = o + 8.6, bw = 24.5, bh = 34.6, bc = bx + bw / 2;
 const contact = (label, value, y) => `<g fill="${C.gold}">${text(fonts.sansBold, label, bc, y, 1.05, { anchor: "middle", tracking: 0.32 })}</g><g fill="${C.ivory}">${text(fonts.sans, value, bc, y + 2.9, 1.95, { anchor: "middle" })}</g>`;
 const fr = 2.4; // retrait du cadre par rapport au rognage
 const back = wrap(bg(`
@@ -152,10 +152,11 @@ const back = wrap(bg(`
 <path d="M${L} ${o + 17}H${o + 50}" stroke="${C.gold}" stroke-opacity="0.6" stroke-width="0.14" fill="none"/>
 ${list}
 <rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="2.2" fill="none" stroke="${C.gold}" stroke-width="0.15"/>
-<g fill="${C.gold}">${text(fonts.sansBold, "ЗАПИСЬ И", bc, by + 5.6, 1.35, { anchor: "middle", tracking: 0.36 })}${text(fonts.sansBold, "КОНСУЛЬТАЦИЯ", bc, by + 7.9, 1.35, { anchor: "middle", tracking: 0.3 })}</g>
-${contact("MAX", "8 (995) 442-47-12", by + 14.4)}
-${contact("ЗВОНКИ", "8 (991) 529-25-42", by + 21.4)}
-${contact("INSTAGRAM", "@yulia.gorbel", by + 28.4)}
+<g fill="${C.gold}">${text(fonts.sansBold, "ЗАПИСЬ И", bc, by + 5.0, 1.35, { anchor: "middle", tracking: 0.36 })}${text(fonts.sansBold, "КОНСУЛЬТАЦИЯ", bc, by + 7.3, 1.35, { anchor: "middle", tracking: 0.3 })}</g>
+${contact("MAX", "8 (995) 442-47-12", by + 11.6)}
+${contact("ЗВОНКИ", "8 (991) 529-25-42", by + 17.4)}
+${contact("INSTAGRAM", "@yulia.gorbel", by + 23.2)}
+${contact("VK", "vk.ru/id1119607697", by + 29.0)}
 </g>`));
 
 // ================= PDF avec traits de coupe =================
