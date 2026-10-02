@@ -1,6 +1,7 @@
 // Génère la carte de visite de Юля Горбель en vectoriel (SVG + PDF), textes convertis en tracés.
 // Usage : node scripts/business-card.mjs
 import fs from "node:fs";
+import sharp from "sharp";
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 const opentype = require("opentype.js");
@@ -120,11 +121,40 @@ const marks = () => {
 const inner = (svg) => svg.replace(/^<\?xml[^>]*>\s*<svg[^>]*>/, "").replace(/<\/svg>\s*$/, "");
 const page = (svg, label) => `<section><svg xmlns="http://www.w3.org/2000/svg" width="${PW}mm" height="${PH}mm" viewBox="0 0 ${PW} ${PH}">
 <g transform="translate(${SLUG} ${SLUG})">${inner(svg)}</g>${marks()}
-<g fill="#000">${text(fonts.sans, label + " · 90x50 mm + 3 mm bleed · gold foil: layers gold-foil*", SLUG, PH - 1.6, 1.6)}</g></svg></section>`;
+<g fill="#000">${text(fonts.sans, label + " · 90x50 mm + 3 mm bleed · foil: gold-foil*", SLUG, PH - 1.8, 1.4)}</g></svg></section>`;
 const html = `<!doctype html><meta charset="utf-8"><style>@page{size:${PW}mm ${PH}mm;margin:0}html,body{margin:0}section{width:${PW}mm;height:${PH}mm;page-break-after:always;overflow:hidden}svg{display:block}</style>${page(front, "FRONT")}${page(back, "BACK")}`;
 
 fs.mkdirSync("print", { recursive: true });
 fs.writeFileSync("print/carte-recto.svg", front);
 fs.writeFileSync("print/carte-verso.svg", back);
 fs.writeFileSync("/tmp/card.html", html);
+
+// ---------- RECTO AVEC PHOTO ----------
+// Photo : public/img/portrait.jpg recadrée au format de la zone (48 x 56 mm, ~300 dpi).
+const PH_X = o + 44, PH_W = W - PH_X, PH_H = H;
+const photoBuf = await sharp("public/img/portrait.jpg")
+  .extract({ left: 0, top: 40, width: 580, height: Math.round((580 * PH_H) / PH_W) })
+  .jpeg({ quality: 95 }).toBuffer();
+const cx = o + 22.5;
+const frontPhoto = wrap(`
+<defs>
+  <linearGradient id="fondu" x1="0" x2="1" y1="0" y2="0">
+    <stop offset="0" stop-color="${C.ink}" stop-opacity="1"/><stop offset="0.28" stop-color="${C.ink}" stop-opacity="0"/>
+  </linearGradient>
+</defs>
+<image id="photo" x="${PH_X}" y="0" width="${PH_W}" height="${PH_H}" preserveAspectRatio="xMidYMid slice" href="data:image/jpeg;base64,${photoBuf.toString("base64")}"/>
+<rect x="${PH_X}" y="0" width="${PH_W}" height="${PH_H}" fill="url(#fondu)"/>
+<g id="gold-foil" fill="${C.gold}">
+  ${text(fonts.script, "Юля", cx, o + 22, 11.5, { anchor: "middle" })}
+  ${text(fonts.playfair, "ГОРБЕЛЬ", cx, o + 29.8, 5.1, { anchor: "middle", tracking: 0.75 })}
+  ${text(fonts.sans, "ПРОФЕССИОНАЛЬНЫЙ", cx, o + 36, 1.55, { anchor: "middle", tracking: 0.45 })}
+  ${text(fonts.sans, "ПАРИКМАХЕР", cx, o + 38.8, 1.55, { anchor: "middle", tracking: 0.45 })}
+  ${text(fonts.script, "Ваш стиль — моя профессия", cx, o + 44.6, 2.5, { anchor: "middle" })}
+</g>
+<g id="gold-foil-lines" fill="none" stroke="${C.gold}" stroke-width="0.18"><path d="M${cx - 6} ${o + 32.6}H${cx + 6}"/></g>
+${scissors(cx, o + 9.3, 0.45, C.gold)}
+`, C.ink);
+fs.writeFileSync("print/carte-recto-photo.svg", frontPhoto);
+const html2 = `<!doctype html><meta charset="utf-8"><style>@page{size:${PW}mm ${PH}mm;margin:0}html,body{margin:0}section{width:${PW}mm;height:${PH}mm;page-break-after:always;overflow:hidden}svg{display:block}</style>${page(frontPhoto, "FRONT (photo)")}${page(back, "BACK")}`;
+fs.writeFileSync("/tmp/card-photo.html", html2);
 console.log("svg ok");
