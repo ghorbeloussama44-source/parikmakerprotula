@@ -11,9 +11,8 @@ export const site = {
   instagramHandle: "@yulia.gorbel",
   // Номер для WhatsApp (формат без +). Проверьте — взят номер из Max.
   whatsapp: "79954424712",
-  // Чат Max по номеру телефона. Формат ссылки не подтверждён официально — проверить с телефона;
-  // если не открывается, заменить на личную ссылку https://max.ru/u/... из профиля Юлии.
-  maxUrl: "https://max.ru/+79954424712",
+  // Личная ссылка на профиль Юлии в Max (временная — заменить при необходимости).
+  maxUrl: "https://max.ru/u/f9LHodD0cOL1qfuCzyKJ_4S9Z7rZVJYQmdtXqgIgZ1KaBvcEa5U7Z1IODrc",
 };
 
 export const services = [
