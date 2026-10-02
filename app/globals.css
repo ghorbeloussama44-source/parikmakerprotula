@@ -19,6 +19,16 @@ body { background: var(--ink); color: var(--ivory); font-family: var(--font-inte
 .btn-line:hover { background:rgba(214,184,141,.12); }
 .eyebrow { font-size:.72rem; letter-spacing:.35em; text-transform:uppercase; color:var(--gold); }
 input, select { background:transparent; border-bottom:1px solid rgba(214,184,141,.4); padding:.9rem 0; width:100%; outline:none; color:var(--ivory); border-radius:0; }
+input, select { letter-spacing: normal; text-transform: none; font-size: 1rem; }
+/* Autofill du navigateur : garder le fond noir du site (pas de fond bleu/blanc) */
+input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active,
+select:-webkit-autofill {
+  -webkit-text-fill-color: var(--ivory);
+  caret-color: var(--ivory);
+  -webkit-box-shadow: 0 0 0 1000px #17171a inset !important;
+  box-shadow: 0 0 0 1000px #17171a inset !important;
+  transition: background-color 600000s 0s, color 600000s 0s;
+}
 input:focus, select:focus { border-color: var(--gold); }
 select option { background: var(--smoke); }
 input[type="date"] { color-scheme: dark; }
