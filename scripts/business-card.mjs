@@ -1,182 +1,112 @@
-// Génère la carte de visite de Юля Горбель en vectoriel (SVG + PDF), textes convertis en tracés.
-// Usage : node scripts/business-card.mjs
+// Carte de visite de Юлия Горбель — version noire recto/verso, sans photo, sans QR, sans adresse.
+// Tous les textes sont convertis en tracés (aucune police à fournir). Usage : node scripts/business-card.mjs
 import fs from "node:fs";
-import sharp from "sharp";
 import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 const opentype = require("opentype.js");
-const QR = require("qrcode");
 
-const TRIM = { w: 90, h: 50 }, BLEED = 3;
-const W = TRIM.w + BLEED * 2, H = TRIM.h + BLEED * 2;
-const C = { ink: "#0B0B0D", gold: "#D6B88D", goldDeep: "#A98456", ivory: "#F5F2ED", smoke: "#232323" };
-const MAX_URL = "https://max.ru/u/f9LHodD0cOL1qfuCzyKJ_4S9Z7rZVJYQmdtXqgIgZ1KaBvcEa5U7Z1IODrc";
+const TRIM = { w: 90, h: 50 }, B = 3, o = B;
+const W = TRIM.w + B * 2, H = TRIM.h + B * 2;
+const C = { ink: "#0B0B0D", gold: "#D6B88D", ivory: "#E9E4DB", dim: "#B9B2A6" };
 
 const f = (pkg, name) => opentype.parse(fs.readFileSync(require.resolve(`@fontsource/${pkg}/files/${name}.woff`)).buffer.slice(0));
+const pair = (pkg, base) => [f(pkg, `${base.replace("{s}", "cyrillic")}`), f(pkg, `${base.replace("{s}", "latin")}`)];
 const fonts = {
-  playfair: [f("playfair-display", "playfair-display-cyrillic-400-normal"), f("playfair-display", "playfair-display-latin-400-normal")],
-  script: [f("cormorant", "cormorant-cyrillic-500-italic"), f("cormorant", "cormorant-latin-500-italic")],
-  sans: [f("inter", "inter-cyrillic-500-normal"), f("inter", "inter-latin-500-normal")],
-  sansBold: [f("inter", "inter-cyrillic-600-normal"), f("inter", "inter-latin-600-normal")],
+  hand: pair("marck-script", "marck-script-{s}-400-normal"),           // écriture manuscrite (« Юлия »)
+  caps: pair("cormorant", "cormorant-{s}-400-normal"),                  // capitales fines (« ГОРБЕЛЬ »)
+  sans: pair("inter", "inter-{s}-500-normal"),
+  sansBold: pair("inter", "inter-{s}-600-normal"),
 };
 
-// Texte -> tracé SVG (mm). size = corps en mm, tracking en mm entre les lettres.
 function text(set, str, x, y, size, { anchor = "start", tracking = 0 } = {}) {
   const items = [...str].map((ch) => {
     const font = set.find((ft) => ft.charToGlyphIndex(ch) > 0) ?? set[0];
-    const g = font.charToGlyph(ch);
-    return { font, ch, adv: (g.advanceWidth * size) / font.unitsPerEm };
+    return { font, ch, adv: (font.charToGlyph(ch).advanceWidth * size) / font.unitsPerEm };
   });
   const total = items.reduce((s, i) => s + i.adv + tracking, 0) - tracking;
   let cx = anchor === "middle" ? x - total / 2 : anchor === "end" ? x - total : x;
   let d = "";
-  for (const it of items) {
-    d += it.font.getPath(it.ch, cx, y, size).toPathData(3);
-    cx += it.adv + tracking;
-  }
-  return `<path d="${d}"/>`;
+  for (const it of items) { d += it.font.getPath(it.ch, cx, y, size).toPathData(3); cx += it.adv + tracking; }
+  return { svg: `<path d="${d}"/>`, width: total };
 }
+const T = (...a) => text(...a).svg;
 
-// QR vectoriel : une seule forme (rectangles fusionnés par ligne)
-function qr(data, x, y, size) {
-  const m = QR.create(data, { errorCorrectionLevel: "M" }).modules;
-  const n = m.size, u = size / n;
-  let d = "";
-  for (let r = 0; r < n; r++) {
-    let c = 0;
-    while (c < n) {
-      if (!m.get(r, c)) { c++; continue; }
-      let e = c; while (e < n && m.get(r, e)) e++;
-      d += `M${(x + c * u).toFixed(3)} ${(y + r * u).toFixed(3)}h${((e - c) * u).toFixed(3)}v${u.toFixed(3)}h${(-(e - c) * u).toFixed(3)}z`;
-      c = e;
-    }
-  }
-  return `<path d="${d}"/>`;
-}
-
-const o = BLEED; // décalage du rognage
-const wrap = (body, bg) => `<?xml version="1.0" encoding="UTF-8"?>
+const wrap = (body) => `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${W}mm" height="${H}mm" viewBox="0 0 ${W} ${H}">
-<rect id="fond-perdu" width="${W}" height="${H}" fill="${bg}"/>
+<rect id="fond-perdu" width="${W}" height="${H}" fill="${C.ink}"/>
 ${body}
 </svg>`;
 
-// Ciseaux (tracé fin) centrés en (cx, cy)
-const scissors = (cx, cy, s, col) => `<g fill="none" stroke="${col}" stroke-width="0.18" stroke-linecap="round" stroke-linejoin="round" transform="translate(${cx} ${cy}) scale(${s})">
-<circle cx="-1.6" cy="3.6" r="1.25"/><circle cx="1.6" cy="3.6" r="1.25"/>
-<path d="M-1.1 2.5 L1.9 -4.2 M1.1 2.5 L-1.9 -4.2"/></g>`;
+// ---- Icônes au trait (style de l'affiche), centrées en (0,0) dans un cercle de r = 2.7 mm ----
+const icons = {
+  scissors: `<circle cx="-0.55" cy="1.15" r="0.5"/><circle cx="0.55" cy="1.15" r="0.5"/><path d="M-0.4 0.75 L0.75 -1.55 M0.4 0.75 L-0.75 -1.55"/>`,
+  drop: `<path d="M0 -1.6 C1 -0.4 1.5 0.4 1.5 0.9 A1.5 1.5 0 0 1 -1.5 0.9 C-1.5 0.4 -1 -0.4 0 -1.6Z"/>`,
+  sparkle: `<path d="M-0.35 -1.6 C-0.2 -0.5 -0.1 -0.35 1 -0.2 C-0.1 -0.05 -0.2 0.1 -0.35 1.2 C-0.5 0.1 -0.6 -0.05 -1.7 -0.2 C-0.6 -0.35 -0.5 -0.5 -0.35 -1.6Z"/><path d="M1 0.5 C1.05 0.9 1.1 0.95 1.5 1 C1.1 1.05 1.05 1.1 1 1.5 C0.95 1.1 0.9 1.05 0.5 1 C0.9 0.95 0.95 0.9 1 0.5Z"/>`,
+  crown: `<path d="M-1.6 1 L-1.35 -0.9 L-0.55 0 L0 -1.3 L0.55 0 L1.35 -0.9 L1.6 1Z M-1.6 1.6H1.6"/>`,
+};
+const iconCircle = (cx, cy, key) => `<g transform="translate(${cx} ${cy})" fill="none" stroke="${C.gold}" stroke-width="0.17" stroke-linecap="round" stroke-linejoin="round"><circle r="2.7"/>${icons[key]}</g>`;
 
-// ---------- RECTO ----------
+// ================= RECTO =================
 const mid = o + TRIM.w / 2;
 const front = wrap(`
 <g id="gold-foil" fill="${C.gold}">
-  ${text(fonts.script, "Юля", mid, o + 22.6, 15, { anchor: "middle" })}
-  ${text(fonts.playfair, "ГОРБЕЛЬ", mid, o + 32, 7.2, { anchor: "middle", tracking: 1.1 })}
-  ${text(fonts.sans, "ПАРИКМАХЕР-МОДЕЛЬЕР", mid, o + 38, 1.9, { anchor: "middle", tracking: 0.6 })}
-  ${text(fonts.script, "С любовью к каждой пряди", mid, o + 44.3, 3.1, { anchor: "middle" })}
+  ${T(fonts.hand, "Юлия", mid, o + 22.5, 13, { anchor: "middle" })}
+  ${T(fonts.caps, "ГОРБЕЛЬ", mid, o + 31.8, 9.2, { anchor: "middle", tracking: 1.6 })}
+  ${T(fonts.sans, "ПАРИКМАХЕР-МОДЕЛЬЕР", mid, o + 37.4, 1.7, { anchor: "middle", tracking: 0.6 })}
+  ${T(fonts.sans, "С ЛЮБОВЬЮ К КАЖДОЙ ПРЯДИ", mid, o + 44.4, 1.85, { anchor: "middle", tracking: 0.55 })}
 </g>
 <g id="gold-foil-lines" fill="none" stroke="${C.gold}" stroke-width="0.18">
-  <rect x="${o + 3.5}" y="${o + 3.5}" width="${TRIM.w - 7}" height="${TRIM.h - 7}" rx="0"/>
-  <path d="M${mid - 9} ${o + 34.7}H${mid + 9}"/>
+  <path d="M${mid - 9} ${o + 34.4}H${mid + 9}"/>
+  <path d="M${mid - 11} ${o + 41.2}H${mid + 11}" stroke-width="0.12"/>
 </g>
-${scissors(mid, o + 8.4, 0.5, C.gold)}
-`, C.ink);
+<g id="gold-foil-icon" transform="translate(${mid} ${o + 7.2}) scale(0.9)" fill="none" stroke="${C.gold}" stroke-width="0.17" stroke-linecap="round" stroke-linejoin="round">${icons.scissors}</g>
+`);
 
-// ---------- VERSO ----------
-const L = o + 7; // marge gauche
+// ================= VERSO =================
+const L = o + 6.5;
+const rows = [
+  { icon: "scissors", title: "СТРИЖКИ", sub: ["Для всех, любой сложности", "Уверенная работа с детьми"] },
+  { icon: "drop", title: "ОКРАШИВАНИЕ", sub: ["Сложные окрашивания"] },
+  { icon: "sparkle", title: "ЗАВИВКА И КЕРАТИН", sub: ["Химическая и кератиновая завивка", "Кератиновое выпрямление волос"] },
+  { icon: "crown", title: "ПРАЗДНИЧНЫЕ ПРИЧЁСКИ", sub: ["Любые праздничные прически"] },
+];
+const y0 = o + 22, pitch = 7.1;
+const list = rows.map((r, i) => {
+  const cy = y0 + i * pitch;
+  const two = r.sub.length > 1;
+  return `${iconCircle(L + 2.7, cy, r.icon)}
+<g fill="${C.gold}">${T(fonts.sansBold, r.title, L + 6.8, cy - (two ? 0.9 : 0.25), 1.45, { tracking: 0.3 })}</g>
+<g fill="${C.dim}">${r.sub.map((t, k) => T(fonts.sans, t, L + 6.8, cy + (two ? 0.95 : 1.55) + k * 1.9, 1.3)).join("")}</g>`;
+}).join("\n");
+
+// cadre « запись » à droite (comme l'encadré de l'affiche)
+const bx = o + 54.5, by = o + 7.8, bw = 29, bh = 38;
+const contact = (label, value, y, vs = 2.2) => `<g fill="${C.gold}">${T(fonts.sansBold, label, bx + bw / 2, y, 1.15, { anchor: "middle", tracking: 0.35 })}</g><g fill="${C.ivory}">${T(fonts.sans, value, bx + bw / 2, y + 3.1, vs, { anchor: "middle" })}</g>`;
+
 const back = wrap(`
-<g id="texte" fill="${C.ink}">
-  ${text(fonts.script, "Горбель Юлия Александровна", L, o + 11.6, 4.0)}
-  ${text(fonts.sansBold, "ПАРИКМАХЕР-МОДЕЛЬЕР", L, o + 15.6, 1.5, { tracking: 0.4 })}
-  ${text(fonts.sans, "Стаж более 20 лет", L, o + 19.4, 1.5)}
-  ${text(fonts.sans, "Стрижки для всех, любой сложности · Сложные окрашивания", L, o + 22.2, 1.4)}
-  ${text(fonts.sans, "Химическая и кератиновая завивка · Кератиновое выпрямление", L, o + 24.8, 1.4)}
-  ${text(fonts.sans, "Любые праздничные прически · Уверенная работа с детьми", L, o + 27.4, 1.4)}
-  ${text(fonts.sansBold, "MAX", L, o + 33.2, 1.35, { tracking: 0.3 })}
-  ${text(fonts.sans, "8 (995) 442-47-12", L + 13, o + 33.2, 2.45)}
-  ${text(fonts.sansBold, "ЗВОНКИ", L, o + 36.8, 1.35, { tracking: 0.3 })}
-  ${text(fonts.sans, "8 (991) 529-25-42", L + 13, o + 36.8, 2.45)}
-  ${text(fonts.sansBold, "INSTAGRAM", L, o + 40.4, 1.35, { tracking: 0.3 })}
-  ${text(fonts.sans, "@yulia.gorbel", L + 13, o + 40.4, 2.45)}
-  ${text(fonts.sansBold, "АДРЕС", L, o + 44, 1.35, { tracking: 0.3 })}
-  ${text(fonts.sans, "пр. Ленина, 127а, офис 221", L + 13, o + 44, 2.45)}
-</g>
-<g id="gold-foil-mono" fill="${C.goldDeep}">${text(fonts.script, "Ю", o + 72.75, o + 15.2, 9, { anchor: "middle" })}</g>
-<g id="qr" fill="${C.ink}">${qr(MAX_URL, o + 64, o + 19, 17.5)}</g>
-<g id="qr-legende" fill="${C.ink}">${text(fonts.sansBold, "ЗАПИСЬ В MAX", o + 64 + 8.75, o + 40.2, 1.3, { anchor: "middle", tracking: 0.25 })}</g>
-<g id="gold-foil-lines" fill="none" stroke="${C.gold}" stroke-width="0.25">
-  <path d="M${L} ${o + 29.6}H${o + 56}"/>
-  <path d="M${o + 60} ${o + 8}V${o + 44}" stroke-width="0.15"/>
-</g>
-<rect id="bandeau-or" x="0" y="0" width="${W}" height="${o + 2.2}" fill="${C.gold}"/>
-<rect id="bandeau-noir" x="0" y="${H - o - 2.2}" width="${W}" height="${o + 2.2}" fill="${C.ink}"/>
-`, C.ivory);
+<g fill="${C.gold}">${T(fonts.hand, "Горбель Юлия Александровна", L, o + 11.8, 3.1)}</g>
+<g fill="${C.dim}">${T(fonts.sans, "ПАРИКМАХЕР-МОДЕЛЬЕР  ·  СТАЖ БОЛЕЕ 20 ЛЕТ", L, o + 15.6, 1.2, { tracking: 0.22 })}</g>
+<path d="M${L} ${o + 17.4}H${o + 49.5}" stroke="${C.gold}" stroke-width="0.14" fill="none"/>
+${list}
+<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="2.6" fill="none" stroke="${C.gold}" stroke-width="0.17"/>
+<g fill="${C.gold}">${T(fonts.sansBold, "ЗАПИСЬ И", bx + bw / 2, by + 6.2, 1.5, { anchor: "middle", tracking: 0.4 })}${T(fonts.sansBold, "КОНСУЛЬТАЦИЯ", bx + bw / 2, by + 8.7, 1.5, { anchor: "middle", tracking: 0.4 })}</g>
+<path d="M${bx + bw / 2 - 4} ${by + 10.8}H${bx + bw / 2 + 4}" stroke="${C.gold}" stroke-width="0.12" fill="none"/>
+${contact("MAX", "8 (995) 442-47-12", by + 16.2)}
+${contact("ЗВОНКИ", "8 (991) 529-25-42", by + 23.8)}
+${contact("INSTAGRAM", "@yulia.gorbel", by + 31.4)}
+`);
 
-// ---------- PDF avec traits de coupe (marge 5 mm autour du format perdu) ----------
+// ================= PDF avec traits de coupe =================
 const SLUG = 6, PW = W + SLUG * 2, PH = H + SLUG * 2;
-const marks = () => {
-  const t = { x0: SLUG + BLEED, y0: SLUG + BLEED, x1: SLUG + BLEED + TRIM.w, y1: SLUG + BLEED + TRIM.h };
-  const l = 3, g = 1; let d = "";
-  for (const x of [t.x0, t.x1]) d += `M${x} ${t.y0 - g}v${-l}M${x} ${t.y1 + g}v${l}`;
-  for (const y of [t.y0, t.y1]) d += `M${t.x0 - g} ${y}h${-l}M${t.x1 + g} ${y}h${l}`;
-  return `<path d="${d}" stroke="#000" stroke-width="0.1" fill="none"/>`;
-};
+const t = { x0: SLUG + B, y0: SLUG + B, x1: SLUG + B + TRIM.w, y1: SLUG + B + TRIM.h };
+let md = ""; const l = 3, g = 1;
+for (const x of [t.x0, t.x1]) md += `M${x} ${t.y0 - g}v${-l}M${x} ${t.y1 + g}v${l}`;
+for (const y of [t.y0, t.y1]) md += `M${t.x0 - g} ${y}h${-l}M${t.x1 + g} ${y}h${l}`;
 const inner = (svg) => svg.replace(/^<\?xml[^>]*>\s*<svg[^>]*>/, "").replace(/<\/svg>\s*$/, "");
-const page = (svg, label) => `<section><svg xmlns="http://www.w3.org/2000/svg" width="${PW}mm" height="${PH}mm" viewBox="0 0 ${PW} ${PH}">
-<g transform="translate(${SLUG} ${SLUG})">${inner(svg)}</g>${marks()}
-<g fill="#000">${text(fonts.sans, label + " · 90x50 mm + 3 mm bleed · foil: gold-foil*", SLUG, PH - 1.8, 1.4)}</g></svg></section>`;
-const html = `<!doctype html><meta charset="utf-8"><style>@page{size:${PW}mm ${PH}mm;margin:0}html,body{margin:0}section{width:${PW}mm;height:${PH}mm;page-break-after:always;overflow:hidden}svg{display:block}</style>${page(front, "FRONT")}${page(back, "BACK")}`;
+const page = (svg, label) => `<section><svg xmlns="http://www.w3.org/2000/svg" width="${PW}mm" height="${PH}mm" viewBox="0 0 ${PW} ${PH}"><g transform="translate(${SLUG} ${SLUG})">${inner(svg)}</g><path d="${md}" stroke="#000" stroke-width="0.1" fill="none"/><g fill="#000">${T(fonts.sans, `${label} · 90x50 mm + 3 mm bleed · foil: gold-foil*`, SLUG, PH - 1.8, 1.4)}</g></svg></section>`;
 
 fs.mkdirSync("print", { recursive: true });
 fs.writeFileSync("print/carte-recto.svg", front);
 fs.writeFileSync("print/carte-verso.svg", back);
-fs.writeFileSync("/tmp/card.html", html);
-
-// ---------- RECTO AVEC PHOTO ----------
-// Photo : public/img/portrait.jpg recadrée au format de la zone (48 x 56 mm, ~300 dpi).
-const PH_X = o + 44, PH_W = W - PH_X, PH_H = H;
-const photoBuf = await sharp("public/img/portrait.jpg")
-  .extract({ left: 0, top: 40, width: 580, height: Math.round((580 * PH_H) / PH_W) })
-  .jpeg({ quality: 95 }).toBuffer();
-const cx = o + 22.5;
-const frontPhoto = wrap(`
-<defs>
-  <linearGradient id="fondu" x1="0" x2="1" y1="0" y2="0">
-    <stop offset="0" stop-color="${C.ink}" stop-opacity="1"/><stop offset="0.28" stop-color="${C.ink}" stop-opacity="0"/>
-  </linearGradient>
-</defs>
-<image id="photo" x="${PH_X}" y="0" width="${PH_W}" height="${PH_H}" preserveAspectRatio="xMidYMid slice" href="data:image/jpeg;base64,${photoBuf.toString("base64")}"/>
-<rect x="${PH_X}" y="0" width="${PH_W}" height="${PH_H}" fill="url(#fondu)"/>
-<g id="gold-foil" fill="${C.gold}">
-  ${text(fonts.script, "Юля", cx, o + 22, 11.5, { anchor: "middle" })}
-  ${text(fonts.playfair, "ГОРБЕЛЬ", cx, o + 29.8, 5.1, { anchor: "middle", tracking: 0.75 })}
-  ${text(fonts.sans, "ПАРИКМАХЕР-МОДЕЛЬЕР", cx, o + 36.4, 1.55, { anchor: "middle", tracking: 0.45 })}
-  ${text(fonts.sans, "Стаж более 20 лет", cx, o + 39.4, 1.5, { anchor: "middle" })}
-  ${text(fonts.script, "С любовью к каждой пряди", cx, o + 44.6, 2.5, { anchor: "middle" })}
-</g>
-<g id="gold-foil-lines" fill="none" stroke="${C.gold}" stroke-width="0.18"><path d="M${cx - 6} ${o + 32.6}H${cx + 6}"/></g>
-${scissors(cx, o + 9.3, 0.45, C.gold)}
-`, C.ink);
-fs.writeFileSync("print/carte-recto-photo.svg", frontPhoto);
-const html2 = `<!doctype html><meta charset="utf-8"><style>@page{size:${PW}mm ${PH}mm;margin:0}html,body{margin:0}section{width:${PW}mm;height:${PH}mm;page-break-after:always;overflow:hidden}svg{display:block}</style>${page(frontPhoto, "FRONT (photo)")}${page(back, "BACK")}`;
-fs.writeFileSync("/tmp/card-photo.html", html2);
-
-// ---------- RECTO AVANT / APRÈS (sans visage) ----------
-// Mêmes textes que la version photo ; à droite deux panneaux : avant | après (public/img/balayage-*.jpg).
-const panW = PH_W / 2;
-const panel = async (file, x) => {
-  const m = await sharp(file).metadata();
-  const cw = Math.round((m.height * panW) / PH_H);
-  const buf = await sharp(file).extract({ left: Math.round((m.width - cw) / 2), top: 0, width: cw, height: m.height }).jpeg({ quality: 95 }).toBuffer();
-  return `<image x="${x}" y="0" width="${panW}" height="${PH_H}" preserveAspectRatio="xMidYMid slice" href="data:image/jpeg;base64,${buf.toString("base64")}"/>`;
-};
-const lab = (txt, x) => `<rect x="${x}" y="${o + 43.6}" width="${panW}" height="${H - o - 42.2}" fill="${C.ink}" fill-opacity="0.72"/><g fill="${C.gold}">${text(fonts.sans, txt, x + panW / 2, o + 47.2, 1.6, { anchor: "middle", tracking: 0.5 })}</g>`;
-const baImgs = (await panel("public/img/balayage-before.jpg", PH_X)) + (await panel("public/img/balayage-after.jpg", PH_X + panW))
-  + lab("ДО", PH_X) + lab("ПОСЛЕ", PH_X + panW)
-  + `<path d="M${PH_X + panW} 0V${H}" stroke="${C.gold}" stroke-width="0.25"/><path d="M${PH_X} 0V${H}" stroke="${C.gold}" stroke-width="0.25"/>`;
-const frontBA = frontPhoto
-  .replace(/<image id="photo"[^>]*\/>\s*<rect[^>]*url\(#fondu\)"\/>/, baImgs);
-if (frontBA === frontPhoto) throw new Error("remplacement avant/après échoué");
-fs.writeFileSync("print/carte-recto-avant-apres.svg", frontBA);
-fs.writeFileSync("/tmp/card-ba.html", `<!doctype html><meta charset="utf-8"><style>@page{size:${PW}mm ${PH}mm;margin:0}html,body{margin:0}section{width:${PW}mm;height:${PH}mm;page-break-after:always;overflow:hidden}svg{display:block}</style>${page(frontBA, "FRONT (before/after)")}${page(back, "BACK")}`);
+fs.writeFileSync("/tmp/card.html", `<!doctype html><meta charset="utf-8"><style>@page{size:${PW}mm ${PH}mm;margin:0}html,body{margin:0}section{width:${PW}mm;height:${PH}mm;page-break-after:always;overflow:hidden}svg{display:block}</style>${page(front, "FRONT")}${page(back, "BACK")}`);
 console.log("svg ok");
