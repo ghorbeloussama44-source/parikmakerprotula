@@ -13,20 +13,16 @@ export default function Booking() {
 
   const [channel, setChannel] = useState<"whatsapp" | "max">("whatsapp");
 
-  // Pas de backend : le message est préparé et envoyé via l'app choisie (WhatsApp : texte pré-rempli ;
-  // Max : pas de lien pré-rempli, le texte est copié dans le presse-papiers puis Max s'ouvre).
+  // Pas de backend : la demande est préparée ici (écran noir du site), puis le client ouvre l'app choisie
+  // via un bouton (pas d'onglet blanc qui s'ouvre tout seul).
   const submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
     const date = f.get("date") ? new Date(String(f.get("date"))).toLocaleDateString("ru-RU") : "—";
     const msg = `Здравствуйте! Хочу записаться.\nИмя: ${f.get("name")}\nТелефон: ${f.get("phone")}\nУслуга: ${f.get("service")}\nДата: ${date}\nВремя: ${f.get("time")}`;
     setDone(msg);
-    if (channel === "whatsapp") {
-      window.open(`https://wa.me/${site.whatsapp}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
-    } else {
-      navigator.clipboard?.writeText(msg).catch(() => {});
-      window.open(site.maxUrl, "_blank", "noopener");
-    }
+    // Max n'accepte pas de texte pré-rempli : on copie la заявка, le client la colle dans le chat.
+    if (channel === "max") navigator.clipboard?.writeText(msg).catch(() => {});
   };
 
   return (
@@ -42,7 +38,7 @@ export default function Booking() {
           {done ? (
             <div className="text-center">
               <p className="font-display text-2xl text-gold">Заявка готова</p>
-              <p className="mt-3 text-sm text-ivory/70">{channel === "whatsapp" ? "Откройте WhatsApp и отправьте сообщение." : "Текст скопирован — вставьте его в чат Max и отправьте."} Мастер подтвердит время записи.</p>
+              <p className="mt-3 text-sm text-ivory/70">{channel === "whatsapp" ? "Нажмите кнопку ниже — WhatsApp откроется с готовым сообщением." : "Текст скопирован. Нажмите кнопку, откройте чат Max и вставьте его."} Мастер подтвердит время записи.</p>
               <pre className="mt-6 whitespace-pre-wrap rounded-2xl bg-ink/50 p-4 text-left text-sm text-ivory/80">{done}</pre>
               <div className="mt-6 flex flex-wrap justify-center gap-3">
                 <a className="btn btn-gold" href={channel === "whatsapp" ? `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(done)}` : site.maxUrl} target="_blank" rel="noopener noreferrer">{channel === "whatsapp" ? "Открыть WhatsApp" : "Открыть Max"}</a>
