@@ -54,7 +54,7 @@ export default function Transformation() {
             <div className="absolute top-1/2 grid h-12 w-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-gold bg-ink/70 text-gold backdrop-blur">⟷</div>
           </div>
         </div>
-        <p className="mt-5 text-xs uppercase tracking-[.3em] text-gold/70">drag →</p>
+        <p className="mt-5 text-xs uppercase tracking-[.3em] text-gold/70">двигайте →</p>
       </div>
     </section>
   );

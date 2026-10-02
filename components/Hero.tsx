@@ -47,7 +47,7 @@ export default function Hero() {
           <a href={site.vk} target="_blank" rel="noopener noreferrer" className="btn btn-line">VK</a>
         </div>
       </div>
-      <div className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 text-[10px] uppercase tracking-[.4em] text-gold/70">scroll</div>
+      <div className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 text-[10px] uppercase tracking-[.4em] text-gold/70">листайте</div>
     </section>
   );
 }
