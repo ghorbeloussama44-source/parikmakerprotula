@@ -1,11 +1,27 @@
 "use client";
 import { useState } from "react";
+
+// Copie fiable : API Clipboard (https) puis repli execCommand (http, anciens navigateurs / webviews).
+async function copyText(text: string): Promise<boolean> {
+  try {
+    if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; }
+  } catch { /* repli ci-dessous */ }
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = text; ta.setAttribute("readonly", ""); ta.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+    document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
+    const ok = document.execCommand("copy");
+    document.body.removeChild(ta);
+    return ok;
+  } catch { return false; }
+}
 import GoldDust from "./GoldDust";
 import { bookingServices, site, timeSlots } from "@/lib/content";
 
 export default function Booking() {
   const [done, setDone] = useState<string | null>(null);
 
+  const [copied, setCopied] = useState<boolean | null>(null);
   const [channel, setChannel] = useState<"whatsapp" | "max">("whatsapp");
 
   // Pas de backend : la demande est préparée ici (écran noir du site), puis le client ouvre l'app choisie
@@ -16,8 +32,9 @@ export default function Booking() {
     const date = f.get("date") ? new Date(String(f.get("date"))).toLocaleDateString("ru-RU") : "—";
     const msg = `Здравствуйте! Хочу записаться.\nИмя: ${f.get("name")}\nТелефон: ${f.get("phone")}\nУслуга: ${f.get("service")}\nДата: ${date}\nВремя: ${f.get("time")}`;
     setDone(msg);
-    // Max n'accepte pas de texte pré-rempli : on copie la заявка, le client la colle dans le chat.
-    if (channel === "max") navigator.clipboard?.writeText(msg).catch(() => {});
+    setCopied(null);
+    // Max n'accepte pas de texte pré-rempli : le client copie la заявка (bouton) puis la colle dans le chat.
+    if (channel === "max") copyText(msg).then(setCopied);
   };
 
   return (
@@ -33,14 +50,20 @@ export default function Booking() {
           {done ? (
             <div className="text-center">
               <p className="font-display text-2xl text-gold">Заявка готова</p>
-              <p className="mt-3 text-sm text-ivory/70">{channel === "whatsapp" ? "Нажмите кнопку ниже — WhatsApp откроется с готовым сообщением." : "Текст скопирован. Нажмите кнопку, откройте чат Max и вставьте его."} Мастер подтвердит время записи.</p>
+              <p className="mt-3 text-sm text-ivory/70">{channel === "whatsapp" ? "Нажмите кнопку ниже — WhatsApp откроется с готовым сообщением." : "В Max нельзя подставить текст автоматически: нажмите «Скопировать», откройте чат Max и вставьте сообщение (долгое нажатие → «Вставить»)."} Мастер подтвердит время записи.</p>
               <pre className="mt-6 whitespace-pre-wrap rounded-2xl bg-ink/50 p-4 text-left text-sm text-ivory/80">{done}</pre>
               <div className="mt-6 flex flex-wrap justify-center gap-3">
-                <a className="btn btn-gold" href={channel === "whatsapp" ? `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(done)}` : site.maxUrl} target="_blank" rel="noopener noreferrer">{channel === "whatsapp" ? "Открыть WhatsApp" : "Открыть Max"}</a>
+                {channel === "max" && (
+                  <button type="button" className="btn btn-gold" onClick={() => copyText(done).then(setCopied)}>
+                    {copied ? "Скопировано ✓" : "Скопировать сообщение"}
+                  </button>
+                )}
+                <a className={`btn ${channel === "max" ? "btn-line" : "btn-gold"}`} href={channel === "whatsapp" ? `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(done)}` : site.maxUrl}
+                  onClick={() => { if (channel === "max") void copyText(done).then(setCopied); }} target="_blank" rel="noopener noreferrer">{channel === "whatsapp" ? "Открыть WhatsApp" : "Открыть Max"}</a>
                 <a className="btn btn-line" href={site.phoneMaxHref}>Позвонить</a>
                 <a className="btn btn-line" href={site.vk} target="_blank" rel="noopener noreferrer">Написать в VK</a>
               </div>
-              <button className="mt-6 text-xs uppercase tracking-[.25em] text-gold/70" onClick={() => setDone(null)}>Изменить</button>
+              <button className="mt-6 text-xs uppercase tracking-[.25em] text-gold/70" onClick={() => { setDone(null); setCopied(null); }}>Изменить</button>
             </div>
           ) : (
             <form onSubmit={submit} className="space-y-6">
