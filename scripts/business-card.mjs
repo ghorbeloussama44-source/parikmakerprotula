@@ -160,4 +160,23 @@ ${scissors(cx, o + 9.3, 0.45, C.gold)}
 fs.writeFileSync("print/carte-recto-photo.svg", frontPhoto);
 const html2 = `<!doctype html><meta charset="utf-8"><style>@page{size:${PW}mm ${PH}mm;margin:0}html,body{margin:0}section{width:${PW}mm;height:${PH}mm;page-break-after:always;overflow:hidden}svg{display:block}</style>${page(frontPhoto, "FRONT (photo)")}${page(back, "BACK")}`;
 fs.writeFileSync("/tmp/card-photo.html", html2);
+
+// ---------- RECTO AVANT / APRÈS (sans visage) ----------
+// Mêmes textes que la version photo ; à droite deux panneaux : avant | après (public/img/balayage-*.jpg).
+const panW = PH_W / 2;
+const panel = async (file, x) => {
+  const m = await sharp(file).metadata();
+  const cw = Math.round((m.height * panW) / PH_H);
+  const buf = await sharp(file).extract({ left: Math.round((m.width - cw) / 2), top: 0, width: cw, height: m.height }).jpeg({ quality: 95 }).toBuffer();
+  return `<image x="${x}" y="0" width="${panW}" height="${PH_H}" preserveAspectRatio="xMidYMid slice" href="data:image/jpeg;base64,${buf.toString("base64")}"/>`;
+};
+const lab = (txt, x) => `<rect x="${x}" y="${o + 43.6}" width="${panW}" height="${H - o - 42.2}" fill="${C.ink}" fill-opacity="0.72"/><g fill="${C.gold}">${text(fonts.sans, txt, x + panW / 2, o + 47.2, 1.6, { anchor: "middle", tracking: 0.5 })}</g>`;
+const baImgs = (await panel("public/img/balayage-before.jpg", PH_X)) + (await panel("public/img/balayage-after.jpg", PH_X + panW))
+  + lab("ДО", PH_X) + lab("ПОСЛЕ", PH_X + panW)
+  + `<path d="M${PH_X + panW} 0V${H}" stroke="${C.gold}" stroke-width="0.25"/><path d="M${PH_X} 0V${H}" stroke="${C.gold}" stroke-width="0.25"/>`;
+const frontBA = frontPhoto
+  .replace(/<image id="photo"[^>]*\/>\s*<rect[^>]*url\(#fondu\)"\/>/, baImgs);
+if (frontBA === frontPhoto) throw new Error("remplacement avant/après échoué");
+fs.writeFileSync("print/carte-recto-avant-apres.svg", frontBA);
+fs.writeFileSync("/tmp/card-ba.html", `<!doctype html><meta charset="utf-8"><style>@page{size:${PW}mm ${PH}mm;margin:0}html,body{margin:0}section{width:${PW}mm;height:${PH}mm;page-break-after:always;overflow:hidden}svg{display:block}</style>${page(frontBA, "FRONT (before/after)")}${page(back, "BACK")}`);
 console.log("svg ok");
