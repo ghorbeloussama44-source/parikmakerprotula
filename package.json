@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "tsc --noEmit",
-    "card": "node scripts/business-card.mjs"
+    "card": "node scripts/business-card.mjs",
+    "card:ornee": "node scripts/business-card-baroque.mjs"
   },
   "dependencies": {
     "@react-three/fiber": "^9.8.1",
