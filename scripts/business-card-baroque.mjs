@@ -14,6 +14,13 @@ const f = (pkg, name) => opentype.parse(fs.readFileSync(require.resolve(`@fontso
 const pair = (pkg, base) => [f(pkg, base.replace("{s}", "cyrillic")), f(pkg, base.replace("{s}", "latin"))];
 const fonts = { hand: pair("marck-script", "marck-script-{s}-400-normal"), sans: pair("inter", "inter-{s}-500-normal"), sansBold: pair("inter", "inter-{s}-600-normal") };
 
+const n3 = (v) => (+v).toFixed(3);
+function pathData(path) {
+  return path.commands.map((c) => c.type === "Z" ? "Z"
+    : c.type === "M" || c.type === "L" ? `${c.type}${n3(c.x)} ${n3(c.y)}`
+    : c.type === "Q" ? `Q${n3(c.x1)} ${n3(c.y1)} ${n3(c.x)} ${n3(c.y)}`
+    : `C${n3(c.x1)} ${n3(c.y1)} ${n3(c.x2)} ${n3(c.y2)} ${n3(c.x)} ${n3(c.y)}`).join("");
+}
 function text(set, str, x, y, size, { anchor = "start", tracking = 0 } = {}) {
   const items = [...str].map((ch) => {
     const font = set.find((ft) => ft.charToGlyphIndex(ch) > 0) ?? set[0];
@@ -22,7 +29,7 @@ function text(set, str, x, y, size, { anchor = "start", tracking = 0 } = {}) {
   const total = items.reduce((s, i) => s + i.adv + tracking, 0) - tracking;
   let cx = anchor === "middle" ? x - total / 2 : anchor === "end" ? x - total : x;
   let d = "";
-  for (const it of items) { d += it.font.getPath(it.ch, cx, y, size).toPathData(3); cx += it.adv + tracking; }
+  for (const it of items) { d += pathData(it.font.getPath(it.ch, cx, y, size)); cx += it.adv + tracking; }
   return `<path d="${d}"/>`;
 }
 
