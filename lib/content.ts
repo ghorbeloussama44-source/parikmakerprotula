@@ -9,8 +9,8 @@ export const site = {
   vk: "https://vk.ru/id1119607697",
   instagram: "https://instagram.com/yulia.gorbel",
   instagramHandle: "@yulia.gorbel",
-  // Номер для WhatsApp (формат без +). Проверьте — взят номер из Max.
-  whatsapp: "79954424712",
+  // Номер для WhatsApp (формат без +). Временный номер — заменить при необходимости.
+  whatsapp: "79066291334",
   // Личная ссылка на профиль Юлии в Max (временная — заменить при необходимости).
   maxUrl: "https://max.ru/u/f9LHodD0cOL1qfuCzyKJ_4S9Z7rZVJYQmdtXqgIgZ1KaBvcEa5U7Z1IODrc",
 };
