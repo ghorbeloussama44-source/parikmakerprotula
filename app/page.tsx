@@ -5,7 +5,6 @@ import Services from "@/components/Services";
 import Transformation from "@/components/Transformation";
 import Gallery from "@/components/Gallery";
 import About from "@/components/About";
-import Reviews from "@/components/Reviews";
 import Booking from "@/components/Booking";
 import Signature from "@/components/Signature";
 
@@ -19,7 +18,6 @@ export default function Home() {
       <Transformation />
       <Gallery />
       <About />
-      <Reviews />
       <Booking />
       <Signature />
     </main>

@@ -2,8 +2,9 @@
 import { useEffect, useRef } from "react";
 import { gsap, prefersReducedMotion } from "@/lib/gsap";
 
-// Les chiffres sont issus de la concept note — à valider avec Юля.
-const lines = ["15 лет опыта", "5000+ довольных клиентов", "Профессиональная школа"];
+import { site } from "@/lib/content";
+
+const lines = [site.experience, site.role, site.motto + "."];
 const why = [
   "Индивидуальный подход к каждому клиенту",
   "Современные техники и профессиональные материалы",
@@ -34,7 +35,8 @@ export default function About() {
         <img src="/img/portrait.jpg" alt="Юлия Горбель" className="about-bg absolute inset-0 h-full w-full object-cover object-[50%_20%]" />
         <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/75 to-ink/20" />
         <div className="relative z-10 flex h-full flex-col justify-center px-6 md:px-16 lg:px-24">
-          <p className="eyebrow mb-8">Обо мне</p>
+          <p className="eyebrow mb-3">Обо мне</p>
+          <p className="mb-8 text-sm text-ivory/70">{site.fullName}</p>
           {lines.map((l) => (
             <p key={l} className="font-display text-[clamp(2rem,6vw,5rem)] leading-[1.1]" aria-label={l}>
               {l.split("").map((c, i) => <span key={i} aria-hidden className="ch gold-text" style={{ opacity: 0.08, whiteSpace: "pre" }}>{c}</span>)}

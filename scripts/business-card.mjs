@@ -72,8 +72,8 @@ const front = wrap(`
 <g id="gold-foil" fill="${C.gold}">
   ${text(fonts.script, "Юля", mid, o + 22.6, 15, { anchor: "middle" })}
   ${text(fonts.playfair, "ГОРБЕЛЬ", mid, o + 32, 7.2, { anchor: "middle", tracking: 1.1 })}
-  ${text(fonts.sans, "ПРОФЕССИОНАЛЬНЫЙ ПАРИКМАХЕР", mid, o + 38, 1.9, { anchor: "middle", tracking: 0.55 })}
-  ${text(fonts.script, "Ваш стиль — моя профессия", mid, o + 44.3, 3.1, { anchor: "middle" })}
+  ${text(fonts.sans, "ПАРИКМАХЕР-МОДЕЛЬЕР", mid, o + 38, 1.9, { anchor: "middle", tracking: 0.6 })}
+  ${text(fonts.script, "С любовью к каждой пряди", mid, o + 44.3, 3.1, { anchor: "middle" })}
 </g>
 <g id="gold-foil-lines" fill="none" stroke="${C.gold}" stroke-width="0.18">
   <rect x="${o + 3.5}" y="${o + 3.5}" width="${TRIM.w - 7}" height="${TRIM.h - 7}" rx="0"/>
@@ -86,23 +86,26 @@ ${scissors(mid, o + 8.4, 0.5, C.gold)}
 const L = o + 7; // marge gauche
 const back = wrap(`
 <g id="texte" fill="${C.ink}">
-  ${text(fonts.script, "Юлия Горбель", L, o + 12.2, 6.2)}
-  ${text(fonts.sans, "ПРОФЕССИОНАЛЬНЫЙ ПАРИКМАХЕР", L, o + 16.4, 1.55, { tracking: 0.4 })}
-  ${text(fonts.sans, "СТРИЖКИ  ·  ОКРАШИВАНИЕ  ·  УХОД И ВОССТАНОВЛЕНИЕ", L, o + 20.2, 1.3, { tracking: 0.15 })}
-  ${text(fonts.sansBold, "MAX", L, o + 29.2, 1.35, { tracking: 0.3 })}
-  ${text(fonts.sans, "8 (995) 442-47-12", L + 13, o + 29.2, 2.45)}
-  ${text(fonts.sansBold, "ЗВОНКИ", L, o + 33.4, 1.35, { tracking: 0.3 })}
-  ${text(fonts.sans, "8 (991) 529-25-42", L + 13, o + 33.4, 2.45)}
-  ${text(fonts.sansBold, "INSTAGRAM", L, o + 37.6, 1.35, { tracking: 0.3 })}
-  ${text(fonts.sans, "@yulia.gorbel", L + 13, o + 37.6, 2.45)}
-  ${text(fonts.sansBold, "АДРЕС", L, o + 41.8, 1.35, { tracking: 0.3 })}
-  ${text(fonts.sans, "пр. Ленина, 127а, офис 221", L + 13, o + 41.8, 2.45)}
+  ${text(fonts.script, "Горбель Юлия Александровна", L, o + 11.6, 4.0)}
+  ${text(fonts.sansBold, "ПАРИКМАХЕР-МОДЕЛЬЕР", L, o + 15.6, 1.5, { tracking: 0.4 })}
+  ${text(fonts.sans, "Стаж более 20 лет", L, o + 19.4, 1.5)}
+  ${text(fonts.sans, "Стрижки для всех, любой сложности · Сложные окрашивания", L, o + 22.2, 1.4)}
+  ${text(fonts.sans, "Химическая и кератиновая завивка · Кератиновое выпрямление", L, o + 24.8, 1.4)}
+  ${text(fonts.sans, "Любые праздничные прически · Уверенная работа с детьми", L, o + 27.4, 1.4)}
+  ${text(fonts.sansBold, "MAX", L, o + 33.2, 1.35, { tracking: 0.3 })}
+  ${text(fonts.sans, "8 (995) 442-47-12", L + 13, o + 33.2, 2.45)}
+  ${text(fonts.sansBold, "ЗВОНКИ", L, o + 36.8, 1.35, { tracking: 0.3 })}
+  ${text(fonts.sans, "8 (991) 529-25-42", L + 13, o + 36.8, 2.45)}
+  ${text(fonts.sansBold, "INSTAGRAM", L, o + 40.4, 1.35, { tracking: 0.3 })}
+  ${text(fonts.sans, "@yulia.gorbel", L + 13, o + 40.4, 2.45)}
+  ${text(fonts.sansBold, "АДРЕС", L, o + 44, 1.35, { tracking: 0.3 })}
+  ${text(fonts.sans, "пр. Ленина, 127а, офис 221", L + 13, o + 44, 2.45)}
 </g>
 <g id="gold-foil-mono" fill="${C.goldDeep}">${text(fonts.script, "Ю", o + 72.75, o + 15.2, 9, { anchor: "middle" })}</g>
 <g id="qr" fill="${C.ink}">${qr(MAX_URL, o + 64, o + 19, 17.5)}</g>
 <g id="qr-legende" fill="${C.ink}">${text(fonts.sansBold, "ЗАПИСЬ В MAX", o + 64 + 8.75, o + 40.2, 1.3, { anchor: "middle", tracking: 0.25 })}</g>
 <g id="gold-foil-lines" fill="none" stroke="${C.gold}" stroke-width="0.25">
-  <path d="M${L} ${o + 24.2}H${o + 56}"/>
+  <path d="M${L} ${o + 29.6}H${o + 56}"/>
   <path d="M${o + 60} ${o + 8}V${o + 44}" stroke-width="0.15"/>
 </g>
 <rect id="bandeau-or" x="0" y="0" width="${W}" height="${o + 2.2}" fill="${C.gold}"/>
@@ -147,9 +150,9 @@ const frontPhoto = wrap(`
 <g id="gold-foil" fill="${C.gold}">
   ${text(fonts.script, "Юля", cx, o + 22, 11.5, { anchor: "middle" })}
   ${text(fonts.playfair, "ГОРБЕЛЬ", cx, o + 29.8, 5.1, { anchor: "middle", tracking: 0.75 })}
-  ${text(fonts.sans, "ПРОФЕССИОНАЛЬНЫЙ", cx, o + 36, 1.55, { anchor: "middle", tracking: 0.45 })}
-  ${text(fonts.sans, "ПАРИКМАХЕР", cx, o + 38.8, 1.55, { anchor: "middle", tracking: 0.45 })}
-  ${text(fonts.script, "Ваш стиль — моя профессия", cx, o + 44.6, 2.5, { anchor: "middle" })}
+  ${text(fonts.sans, "ПАРИКМАХЕР-МОДЕЛЬЕР", cx, o + 36.4, 1.55, { anchor: "middle", tracking: 0.45 })}
+  ${text(fonts.sans, "Стаж более 20 лет", cx, o + 39.4, 1.5, { anchor: "middle" })}
+  ${text(fonts.script, "С любовью к каждой пряди", cx, o + 44.6, 2.5, { anchor: "middle" })}
 </g>
 <g id="gold-foil-lines" fill="none" stroke="${C.gold}" stroke-width="0.18"><path d="M${cx - 6} ${o + 32.6}H${cx + 6}"/></g>
 ${scissors(cx, o + 9.3, 0.45, C.gold)}

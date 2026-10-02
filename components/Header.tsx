@@ -9,7 +9,6 @@ export default function Header() {
         <a href="#transform" className="hover:text-gold">Результат</a>
         <a href="#gallery" className="hover:text-gold">Галерея</a>
         <a href="#about" className="hover:text-gold">Обо мне</a>
-        <a href="#reviews" className="hover:text-gold">Отзывы</a>
       </nav>
       <div className="flex items-center gap-3">
         <a href={site.phoneCallHref} className="hidden text-sm text-ivory/80 lg:block">{site.phoneCall}</a>
